@@ -32,6 +32,7 @@ if __name__ == '__main__':
         testSunset = getSec(testFileData[counter].split(',')[1])
         baseSunrise = getSec(baseFileData[counter].split(',')[0])
         baseSunset = getSec(baseFileData[counter].split(',')[1])
+        f.write("%s" %(testFileData[counter-1]))
         f.write( "%d,%d\n" %(baseSunrise - testSunrise, baseSunset - testSunset) )
         counter += 2 
     f.close()
