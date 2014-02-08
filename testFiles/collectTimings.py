@@ -9,13 +9,15 @@ lng = 0.0
 date = "2000-12-21"
 f = open('%s_MDO_timings.txt' %(date), 'w')
 
-
+#f.write("%s,%s,%s\n" %("fajr","sunrise","maghrib"))
 for x in range(-1,26):
     f.write("%f, %f, %s\n" %(lat,lng,date))
     #formatString %(lat + 5*x, lng, timeZone, date, date)
     r = requests.get(API,params={"lat": lat, "lng": lng, "timezone":"Etc/UTC", "start":date, "end":date })
-    
-    f.write("%s, %s\n" %(r.json()[date]["sunrise"],r.json()[date]["maghrib"]))
+    #print r.json()
+    f.write("%s,%s,%s\n" %(r.json()[date]["fajr"],
+                           r.json()[date]["sunrise"],
+                           r.json()[date]["maghrib"]))
     lat += 5.0
 
 f.close()    

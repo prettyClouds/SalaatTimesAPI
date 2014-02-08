@@ -28,12 +28,16 @@ if __name__ == '__main__':
     counter = 1
     f = open("comparison.txt", 'w')
     for x in range(1, 28):
-        testSunrise = getSec(testFileData[counter].split(',')[0])
-        testSunset = getSec(testFileData[counter].split(',')[1])
-        baseSunrise = getSec(baseFileData[counter].split(',')[0])
-        baseSunset = getSec(baseFileData[counter].split(',')[1])
+        testFajr = getSec(testFileData[counter].split(',')[0])
+        testSunrise = getSec(testFileData[counter].split(',')[1])
+        testSunset = getSec(testFileData[counter].split(',')[2])
+        
+        
+        baseFajr = getSec(baseFileData[counter].split(',')[0])
+        baseSunrise = getSec(baseFileData[counter].split(',')[1])
+        baseSunset = getSec(baseFileData[counter].split(',')[2])
         f.write("%s" %(testFileData[counter-1]))
-        f.write( "%d,%d\n" %(baseSunrise - testSunrise, baseSunset - testSunset) )
+        f.write( "%d,%d,%d\n" %(baseFajr - testFajr, baseSunrise - testSunrise, baseSunset - testSunset) )
         counter += 2 
     f.close()
         
