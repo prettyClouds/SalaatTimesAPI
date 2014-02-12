@@ -1,4 +1,4 @@
-package com.upokecenter.util;
+package org.mumineen.util;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +11,7 @@ public class SalaatTimes {
 
 	private SalaatTimes() {}
 	
+	
 	private static SalaatTimes instance = null;
 	public static SalaatTimes getInstance() {
 		if(instance == null) {
@@ -19,9 +20,22 @@ public class SalaatTimes {
 		return instance;
 	}
 	
-	public Map<String, DateTime> GetTimesUtc(int year, int month, int day, DateTimeZone tz, double lat, double lon) {
+	public enum SalaatTimeName {SIHORI, FAJR, SUNRISE, ZAWAAL, ZUHR, ASR, MAGHRIB};
 	
-		Map<String, DateTime> SalaatTimes = new HashMap<String, DateTime>();
+	public Map<SalaatTimeName, DateTime> GetTimesInTz(int year, int month, int day, DateTimeZone tz, double lat, double lon) {
+		Map<SalaatTimeName, DateTime> salaatTimesInUtc = GetTimesUtc(year, month, day, tz, lat, lon);
+		Map<SalaatTimeName, DateTime> salaatTimesInTz = new HashMap<SalaatTimeName, DateTime>();
+		for (Map.Entry<SalaatTimeName, DateTime> entry : salaatTimesInUtc.entrySet())
+		{
+		    salaatTimesInTz.put(entry.getKey(),  entry.getValue().withZone(tz));
+		}
+
+		return salaatTimesInTz;
+	}
+	
+	private Map<SalaatTimeName, DateTime> GetTimesUtc(int year, int month, int day, DateTimeZone tz, double lat, double lon) {
+	
+		Map<SalaatTimeName, DateTime> SalaatTimes = new HashMap<SalaatTimeName, DateTime>();
 		long trise[]=new long[1];
 		long tset[]=new long[1];
 		
@@ -36,13 +50,13 @@ public class SalaatTimes {
 		DateTime asr = GetAsr(zuhr, sunrise, maghrib);
 		DateTime sihori = GetSihori(sunrise);
 		
-		SalaatTimes.put("sihori", sihori);
-		SalaatTimes.put("fajr", fajr);
-		SalaatTimes.put("sunrise", sunrise);
-		SalaatTimes.put("zawaal", zawaal);
-		SalaatTimes.put("zuhr", zuhr);
-		SalaatTimes.put("asr", asr);
-		SalaatTimes.put("maghrib", maghrib);
+		SalaatTimes.put(SalaatTimeName.SIHORI, sihori);
+		SalaatTimes.put(SalaatTimeName.FAJR, fajr);
+		SalaatTimes.put(SalaatTimeName.SUNRISE, sunrise);
+		SalaatTimes.put(SalaatTimeName.ZAWAAL, zawaal);
+		SalaatTimes.put(SalaatTimeName.ZUHR, zuhr);
+		SalaatTimes.put(SalaatTimeName.ASR, asr);
+		SalaatTimes.put(SalaatTimeName.MAGHRIB, maghrib);
 		return SalaatTimes;
 	}
 	
@@ -87,16 +101,7 @@ public class SalaatTimes {
 		return new DateTime(msse, DateTimeZone.UTC); 
 	}
 
-	public Map<String, DateTime> GetTimesInTz(int year, int month, int day, DateTimeZone tz, double lat, double lon) {
-		Map<String, DateTime> salaatTimesInUtc = GetTimesUtc(year, month, day, tz, lat, lon);
-		Map<String, DateTime> salaatTimesInTz = new HashMap<String, DateTime>();
-		for (Map.Entry<String, DateTime> entry : salaatTimesInUtc.entrySet())
-		{
-		    salaatTimesInTz.put(entry.getKey(),  entry.getValue().withZone(tz));
-		}
 
-		return salaatTimesInTz;
-	}
 
 	@SuppressWarnings("unused")
 	private static String getDateString(int year, int month, int day) {

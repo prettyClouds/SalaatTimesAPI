@@ -1,40 +1,16 @@
-<project name="Example Build Script" basedir=".">
+<project name="SalaatTimes" basedir="." default="CreateJar">
 
-	<!-- Load properties -->
-	<property file="build.properties" />
-
-	<!-- Load task definitions e.g. FTP -->
-	<path id="class.path">
-		<fileset dir="${lib.dir}" includes="*.jar" />
-	</path>
-
-	<!-- Set variables for build directories -->
-	<property name="build.dir" value="build" />
-	<property name="src.dir" value="src" />
-	<!-- set variable for external lib directory (typically set up as external 
-		project within project) -->
-	<property name="lib.dir" value="lib" />
-
-	<target name="-init" depends="clean">
-		<echo>Creating temporary folders...</echo>
-		<mkdir dir="${build.dir}" />
-	</target>
-
-	<target name="clean" description="Clean up">
-		<echo>Cleaning up...</echo>
-		<delete dir="${build.dir}" />
-	</target>
-
-	<target name="build" depends="-init" description="Build project">
-		<echo>Copying files to build folder...</echo>
-		<copy todir="${build.dir}">
-			<fileset dir="${src.dir}" />
-		</copy>
-	</target>
-
-	<target name="CreateJar" description="Create Jar file">
+	
+   <target name="deleteJar"  description="Create Jar file">
+    <echo>deleting old jar file</echo>
+    <delete file="SalaatTimes.jar"/>
+  </target>
+    
+	
+	<target name="CreateJar"  depends="deleteJar" description="Create Jar file">
 		<echo>Creating jar file</echo>
-		<jar jarfile="SalaatTimes.jar" basedir="${build.dir}/classes" />
+		<jar jarfile="SalaatTimes.jar" basedir="bin"
+			excludes="*SalaatTimes.jar *.txt *.properties *build.xml"/>
 	</target>
 
 </project>

@@ -4,7 +4,7 @@ released to the public domain by Paul Schlyter, December 1992
  */
 /* Converted to Java and C# by Peter O., 2013. */
 
-package com.upokecenter.util;
+package org.mumineen.util;
 
 
 import org.joda.time.DateTime;
@@ -18,7 +18,7 @@ public final class SunriseSunset {
 	private double DEGRAD= Math.PI/180.0;
 	private double INV360 = 1.0/360.0;
 
-	
+
 	private static SunriseSunset instance = null;
 
 	public static SunriseSunset getInstance() {
@@ -28,125 +28,23 @@ public final class SunriseSunset {
 		return instance;
 	}
 
-	
+
 	public int DawnAndDusk( int year, int month, int day, DateTimeZone tz, double lat, double lon,
 			long[] trise, long[] tset )
 	{
 		double altitude = -35.0/60.0;
 		return this.rise_set_altitude(year, month, day, tz, lon, lat, altitude, true, trise, tset);
-			   //__sunriset__(year, month, day, lat, lon, altitude, true, trise, tset);
+
 	}
 
 	public int NauticalDawnAndDusk( int year, int month, int day, DateTimeZone tz, double lat, double lon,
 			long []trise, long []tset )
 	{
 		double altitude = -12.0;
-		
+
 		return this.rise_set_altitude(year, month, day, tz, lon, lat, altitude, false, trise, tset);
-			   //__sunriset__(year, month, day, lat, lon, altitude, false, trise, tset);
+
 	}
-	
-	public int __sunriset__( int year, int month, int day, double lon, double lat,
-			double altit, boolean upper_limb, long []trise, long []tset )
-	/***************************************************************************/
-	/* Note: year,month,date = calendar date, 1801-2099 only.             */
-	/*       Eastern longitude positive, Western longitude negative       */
-	/*       Northern latitude positive, Southern latitude negative       */
-	/*       The longitude value IS critical in this function!            */
-	/*       altit = the altitude which the Sun should cross              */
-	/*               Set to -35/60 degrees for rise/set, -6 degrees       */
-	/*               for civil, -12 degrees for nautical and -18          */
-	/*               degrees for astronomical twilight.                   */
-	/*         upper_limb: non-zero -> upper limb, zero -> center         */
-	/*               Set to non-zero (e.g. 1) when computing rise/set     */
-	/*               times, and to zero when computing start/end of       */
-	/*               twilight.                                            */
-	/*        *rise = where to store the rise time                        */
-	/*        *set  = where to store the set  time                        */
-	/*                Both times are relative to the specified altitude,  */
-	/*                and thus this function can be used to compute       */
-	/*                various twilight times, as well as rise/set times   */
-	/* Return value:  0 = sun rises/sets this day, times stored at        */
-	/*                    *trise and *tset.                               */
-	/*               +1 = sun above the specified "horizon" 24 hours.     */
-	/*                    *trise set to time when the sun is at south,    */
-	/*                    minus 12 hours while *tset is set to the south  */
-	/*                    time plus 12 hours. "Day" length = 24 hours     */
-	/*               -1 = sun is below the specified "horizon" 24 hours   */
-	/*                    "Day" length = 0 hours, *trise and *tset are    */
-	/*                    both set to the time when the sun is at south.  */
-	/*                                                                    */
-	/**********************************************************************/
-	{
-		double  d,  /* Days since 2000 Jan 0.0 (negative before) */
-		sr,         /* Solar distance, astronomical units */
-		sRA,        /* Sun's Right Ascension */
-		sdec,       /* Sun's declination */
-		sradius,    /* Sun's apparent radius */
-		t,          /* Diurnal arc */
-		tsouth,     /* Time when Sun is at south */
-		sidtime;    /* Local sidereal time */
-
-		int rc = 0; /* Return cde from function - usually 0 */
-
-		LocalDate dtUtcInit = new LocalDate(getDateString(year, month, day));
-		DateTime dtUtc = dtUtcInit.toDateTimeAtStartOfDay(DateTimeZone.UTC);
-	
-		/* Compute d of 12h local mean solar time */
-		d = ToJulianDate((double)(dtUtc.getMillis())/1000.0) + 0.5 - lon/360.0;
-
-		/* Compute local sidereal time of this moment */
-		sidtime = revolution( GMST0(d) + 180.0 + lon );
-
-		/* Compute Sun's RA + Decl at this moment */
-		double ra_dec_sr[]=sun_RA_dec( d  );
-		sRA=ra_dec_sr[0];
-		sdec=ra_dec_sr[1];
-		sr=ra_dec_sr[2];
-		/* Compute time when Sun is at south - in hours UT */
-		tsouth = 12.0 - rev180(sidtime - sRA)/15.0;
-
-		/* Compute the Sun's apparent radius, degrees */
-		sradius = 0.2666 / sr;
-
-		/* Do correction to upper limb, if necessary */
-		if ( upper_limb ) {
-			altit -= sradius;
-		}
-
-		/* Compute the diurnal arc that the Sun traverses to reach */
-		/* the specified altitude altit: */
-		
-			double cost;
-			cost = ( Math.sin(DEGRAD*altit) - Math.sin(DEGRAD*lat) * Math.sin(DEGRAD*sdec) ) /
-					( Math.cos(DEGRAD*lat) * Math.cos(DEGRAD*sdec) );
-			if ( cost >= 1.0 )
-			{ rc = -1; t = 0.0;}       /* Sun always below altit */
-			else if ( cost <= -1.0 )
-			{ rc = +1; t = 12.0; }      /* Sun always above altit */ else {
-				t = RADEG*Math.acos(cost)/15.0;   /* The diurnal arc, hours */
-			}
-		
-			
-			/* Store rise and set times - as Unix Timestamp */
-			trise[0] =  (long) ( (tsouth - t) * 3600*1000);
-			tset[0]  = (long) ( (tsouth + t) * 3600*1000);
-
-		
-		System.out.println(String.format("d: %f",  d));
-		System.out.println(String.format("sr: %f",  sr));
-		System.out.println(String.format("sRA: %f",  sRA));
-		System.out.println(String.format("sdec: %f",  sdec));
-		System.out.println(String.format("sradius: %f",  sradius));
-		System.out.println(String.format("t: %f",  t));
-		System.out.println(String.format("tsouth: %f",  tsouth));
-		System.out.println(String.format("sidtime: %f",  sidtime));
-		System.out.println(String.format("cost: %f",  cost));
-		System.out.println(String.format("trise: %d",  trise[0]));
-		System.out.println(String.format("tset: %d\n",  tset[0]));
-		
-		return rc;
-	}  /* __sunriset__ */
 
 	private double GMST0( double d )
 	{
@@ -259,17 +157,6 @@ public final class SunriseSunset {
 		return new double[]{lon, r};
 	}
 
-	private double ToJulianDate( double ts)
-	{
-		double tmp;
-
-		tmp = ts;
-		tmp /= 86400;
-		tmp += 2440587.5;
-		tmp -= 2451543;
-
-		return tmp;
-	}
 
 	/**
 	 * Note: timestamp = unixtimestamp (NEEDS to be 00:00:00 UT)
@@ -301,15 +188,15 @@ public final class SunriseSunset {
 	 *                                                                    
 	 */
 	private int rise_set_altitude(int year, 
-												int month, 
-												int day, 
-												DateTimeZone tz, 
-												double lon, 
-												double lat, 
-												double altit, 
-												boolean upper_limb, 
-												long []ts_rise, 
-												long []ts_set)
+			int month, 
+			int day, 
+			DateTimeZone tz, 
+			double lon, 
+			double lat, 
+			double altit, 
+			boolean upper_limb, 
+			long []ts_rise, 
+			long []ts_set)
 	{
 		double d,  /* Days since 2000 Jan 0.0 (negative before) */
 		sr,         /* Solar distance, astronomical units */
@@ -319,39 +206,39 @@ public final class SunriseSunset {
 		t,          /* Diurnal arc */
 		tsouth,     /* Time when Sun is at south */
 		sidtime;    /* Local sidereal time */
-		
+
 
 		int rc = 0; /* Return cde from function - usually 0 */
 
-/*
+		/*
 		Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
 		cal.set(year, month, day, 0, 0);
 		long msseUtc = cal.getTimeInMillis();
-*/
+		 */
 		LocalDate dtInit = new LocalDate(getDateString(year, month, day));
 		DateTime dtUtc = dtInit.toDateTimeAtStartOfDay(DateTimeZone.UTC);
 		//System.out.println(dtUtc);
 		long msseUtc = dtUtc.getMillis();
-		
+
 		long msseTz = dtInit.toDateTimeAtStartOfDay(tz).plusHours(12).getMillis();
-		
+
 		/*
 		cal = new GregorianCalendar(TimeZone.getTimeZone(tz.getID()));
 		cal.set(year, month, day, 12, 0);
 		long msseTz = cal.getTimeInMillis();
-		*/
+		 */
 
 		//DateTime dtTz = dtInit.toDateTimeAtStartOfDay(DateTimeZone.UTC);
 		/*
 		System.out.println("millisecond comparison");
 		System.out.println(msseUtc);
 		System.out.println(msseTz);
-		*/
-		
+		 */
+
 		/*
 		/* Compute d of 12h local mean solar time */
 		//timestamp = t_loc->sse;
-	
+
 		d = timelib_ts_to_juliandate(msseTz/1000.0) - lon/360.0;
 
 		/* Compute local sidereal time of this moment */
@@ -376,34 +263,34 @@ public final class SunriseSunset {
 
 		/* Compute the diurnal arc that the Sun traverses to reach */
 		/* the specified altitude altit: */
-		
-			double cost;
-			cost = (sind(altit) - sind(lat) * sind(sdec)) / (cosd(lat) * cosd(sdec));
-			
-			if (cost >= 1.0) {
-				rc = -1;
-				t = 0.0;       /* Sun always below altit */
 
-				ts_rise[0] = ts_set[0] = (long) (msseUtc + (tsouth * 3600 * 1000));
-			} else if (cost <= -1.0) {
-				rc = +1;
-				t = 12.0;      /* Sun always above altit */
+		double cost;
+		cost = (sind(altit) - sind(lat) * sind(sdec)) / (cosd(lat) * cosd(sdec));
 
-				ts_rise[0] = (msseTz - (12 * 3600)*1000);
-				ts_set[0]  = (msseTz + (12 * 3600)*1000);
-			} else {
-				t = acosd(cost) / 15.0;   /* The diurnal arc, hours */
-				
-				/* Store rise and set times - as Unix Timestamp */
-				
-				
-				ts_rise[0] =  (long) ( (tsouth - t) * 3600*1000 ) + msseUtc;
-				ts_set[0]  = (long) ( (tsouth + t) * 3600*1000 ) + msseUtc;
+		if (cost >= 1.0) {
+			rc = -1;
+			t = 0.0;       /* Sun always below altit */
 
-			}
-		
-		
-		 /*
+			ts_rise[0] = ts_set[0] = (long) (msseUtc + (tsouth * 3600 * 1000));
+		} else if (cost <= -1.0) {
+			rc = +1;
+			t = 12.0;      /* Sun always above altit */
+
+			ts_rise[0] = msseUtc;
+			ts_set[0]  = (msseUtc + (24 * 3600)*1000);
+		} else {
+			t = acosd(cost) / 15.0;   /* The diurnal arc, hours */
+
+			/* Store rise and set times - as Unix Timestamp */
+
+
+			ts_rise[0] =  (long) ( (tsouth - t) * 3600*1000 ) + msseUtc;
+			ts_set[0]  = (long) ( (tsouth + t) * 3600*1000 ) + msseUtc;
+
+		}
+
+
+		/*
 		System.out.println(String.format("d: %f",  d));
 		System.out.println(String.format("sr: %f",  sr));
 		System.out.println(String.format("sRA: %f",  sRA));
@@ -415,7 +302,7 @@ public final class SunriseSunset {
 		System.out.println(String.format("cost: %f",  cost));
 		System.out.println(String.format("trise: %d",  ts_rise[0]));
 		System.out.println(String.format("tset: %d\n",  ts_set[0]));
-		*/
+		 */
 		return rc;
 	}
 
@@ -430,15 +317,17 @@ public final class SunriseSunset {
 
 		return tmp;
 	}
-	
-private String getDateString(int year, int month, int day) {
+
+	private String getDateString(int year, int month, int day) {
 		return String.format("%04d-%02d-%02d", year,month,day);
 	}
-	
 
 	private double sind(double degrees) {return Math.sin(degrees*DEGRAD);}
+
 	private double cosd(double degrees) {return Math.cos(degrees*DEGRAD);} 
+	
 	private double acosd(double length) {return RADEG*Math.acos(length);}
+	
 	private SunriseSunset(){}
 
 }

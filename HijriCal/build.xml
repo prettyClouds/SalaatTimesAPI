@@ -1,0 +1,15 @@
+<project name="HijriCal" basedir="." default="CreateJar">
+
+	
+   <target name="deleteJar"  description="Create Jar file">
+    <echo>deleting old jar file</echo>
+    <delete file="HijriCal.jar"/>
+  </target>
+    
+	<target name="CreateJar"  depends= "deleteJar" description="Create Jar file">
+		<echo>Creating jar file</echo>
+		<jar jarfile="HijriCal.jar" basedir="bin"
+			excludes="*HijriCal.jar *.txt *.properties *build.xml *Main.class"/>
+	</target>
+
+</project>

@@ -1,4 +1,4 @@
-package com.salaattimes.hijrical;
+package org.mumineen.util;
 
 public class Date{
 
