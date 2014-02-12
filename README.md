@@ -17,11 +17,11 @@ location
 
 usage
 ==
-SalaatTimes st = SalaatTimes.getInstance();
-Map<String, DateTime> results = st.GetTimesInTz(year, month, day, DateTimeZone.forID("EST"), lat, lon);
-results.get("sihori").toString("HH:mm:ss");
-results.get("fajr").toString("HH:mm:ss");
-results.get("zawaal").toString("HH:mm:ss");
+SalaatTimes st = SalaatTimes.getInstance();\n
+Map<String, DateTime> results = st.GetTimesInTz(year, month, day, DateTimeZone.forID("EST"), lat, lon);\n
+results.get("sihori").toString("HH:mm:ss");\n
+results.get("fajr").toString("HH:mm:ss");\n
+results.get("zawaal").toString("HH:mm:ss");\n
 results.get("zuhr").toString("HH:mm:ss");
 results.get("asr").toString("HH:mm:ss");
 results.get("sunrise").toString("HH:mm:ss"),;
