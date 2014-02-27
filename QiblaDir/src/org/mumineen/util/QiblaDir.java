@@ -49,16 +49,17 @@ public class QiblaDir {
 		double year = GeoMagneticField.getDecimalYear(dt.getDayOfMonth(), dt.getMonthOfYear(), dt.getYear());
 		GeoMagneticField model = null;
 		try {
-			System.out.println("year");
-			System.out.println(year);
+			//System.out.println("year");
+			//System.out.println(year);
+			
 			model = GeoMagneticFieldFactory.getWMM(year);
 		} catch (OrekitException e) {
 			e.printStackTrace();
 		}
 		GeoMagneticElements result = model.calculateField(lat, lon, 0);
-		System.out.println("lat: " + lat + ',' + " lon: " + (lon+360)%360);
-		System.out.println("trueDir: " + trueDir);
-		System.out.println("declination: " + result.getDeclination());
+		//System.out.println("lat: " + lat + ',' + " lon: " + (lon+360)%360);
+		//System.out.println("trueDir: " + trueDir);
+		//System.out.println("declination: " + result.getDeclination());
 		return (trueDir - result.getDeclination()+360) %360;
 	}
 	
